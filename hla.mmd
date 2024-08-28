@@ -1,0 +1,99 @@
+graph TD
+    Client[Client Applications - React]
+    GraphQLGateway[GraphQL API Gateway]
+    K8s[Kubernetes Cluster]
+    
+    subgraph K8s
+        ServiceRegistry[Service Registry]
+        CircuitBreaker[Circuit Breaker]
+        ZipkinServer[Zipkin Server]
+        ConfigServer[Config Server]
+        SchemaRegistry[Schema Registry]
+        
+        subgraph Databases
+            UserDB[(MySQL)]
+            ProductDB[(MongoDB)]
+            OrderDB[(MySQL)]
+            PaymentDB[(MySQL)]
+            Redis[(Redis)]
+            ElasticSearch[(ElasticSearch)]
+        end
+        
+        subgraph Microservices
+            UserService[User Service - Java/Spring]
+            ProductService[Product Service - Java/Spring]
+            OrderService[Order Service - Java/Spring]
+            PaymentService[Payment Service - Java/Spring]
+            CartService[Shopping Cart Service - Java/Spring]
+            SearchService[Search Service - Node.js]
+            NotificationService[Notification Service - Node.js]
+            AnalyticsService[Analytics Service - Node.js]
+            RecommendationService[Recommendation Service - Python/Flask]
+            ImageProcessingService[Image Processing Service - Python/Flask]
+            InventoryService[Inventory Forecasting - Python/Flask]
+        end
+        
+        subgraph MessageBrokers
+            Kafka1[Kafka Broker 1]
+            Kafka2[Kafka Broker 2]
+            KafkaN[Kafka Broker N]
+            MQ[Message Queue]
+        end
+        
+        subgraph Logging
+            ElasticsearchLogging[(Elasticsearch)]
+            Logstash[Logstash]
+            Kibana[Kibana]
+        end
+    end
+    
+    Client --> GraphQLGateway
+    GraphQLGateway --> ServiceRegistry
+    GraphQLGateway --> CircuitBreaker
+    GraphQLGateway --> Cache[(Cache)]
+    
+    CircuitBreaker --> UserService
+    CircuitBreaker --> ProductService
+    CircuitBreaker --> OrderService
+    CircuitBreaker --> PaymentService
+    CircuitBreaker --> CartService
+    CircuitBreaker --> SearchService
+    CircuitBreaker --> NotificationService
+    CircuitBreaker --> RecommendationService
+    
+    UserService --> UserDB
+    ProductService --> ProductDB
+    OrderService --> OrderDB
+    PaymentService --> PaymentDB
+    CartService --> Redis
+    SearchService --> ElasticSearch
+    
+    UserService --> Kafka1
+    ProductService --> Kafka1
+    OrderService --> Kafka2
+    PaymentService --> Kafka2
+    OrderService --> MQ
+    MQ --> NotificationService
+    MQ --> AnalyticsService
+    
+    AnalyticsService --> OrderDB
+    AnalyticsService --> InventoryService
+    
+    ProductService --> ImageProcessingService
+    
+    Microservices --> ZipkinServer
+    Microservices --> ConfigServer
+    
+    OrderService --> SchemaRegistry
+    ProductService --> SchemaRegistry
+    
+    OrderService --> Kafka1
+    Kafka1 --> ProductService
+    
+    Kafka1 --> Logstash
+    Kafka2 --> Logstash
+    KafkaN --> Logstash
+    Logstash --> ElasticsearchLogging
+    ElasticsearchLogging --> Kibana
+    
+    ConfigServer --> GitHub[(GitHub)]
